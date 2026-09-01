@@ -1,39 +1,29 @@
 import socket
-from rich import print
 
-# temporarily clears the terminal for testing
-import os
-os.system("cls")
 
-while True:
-    domain = input("Domain: ")
+def dns_lookup(domain):
+    try:
+        results = socket.getaddrinfo(domain, None)
 
-    if not domain:
-        print("[red]Domain cannot be empty.[/red]")
-        continue
+        ipv4 = []
+        ipv6 = []
 
-    elif " " in domain:
-        print("[red]Domain cannot contain spaces.[/red]")
-        continue
+        for result in results:
+            address_family = result[0]
+            address = result[4][0]
 
-    elif "." not in domain:
-        print("[red]Invalid domain, try again.[/red]")
-        continue
+            if address_family == socket.AF_INET:
+                if address not in ipv4:
+                    ipv4.append(address)
 
-    elif domain.startswith("."):
-        print("[red]Invalid domain, try again.[/red]")
-        continue
+            elif address_family == socket.AF_INET6:
+                if address not in ipv6:
+                    ipv6.append(address)
 
-    elif domain.endswith("."):
-        print("[red]Invalid domain, try again.[/red]")
-        continue
+        return {
+            "ipv4": ipv4,
+            "ipv6": ipv6
+        }
 
-    break
-
-try:
-    ip = socket.gethostbyname(domain)
-    print(f"Domain: {domain}")
-    print(f"IP: {ip}")
-
-except socket.gaierror:
-    print("[red]Could not resolve that domain.[/red]")
+    except socket.gaierror:
+        return None
