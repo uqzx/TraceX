@@ -1,2 +1,3 @@
 rich
 requests
+dnspython>=2.6
